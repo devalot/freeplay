@@ -7,4 +7,5 @@ module Freeplay
   ##############################################################################
   autoload('VERSION', 'freeplay/version')
   autoload('Board',   'freeplay/board')
+  autoload('Player',  'freeplay/player')
 end

@@ -1,14 +1,36 @@
+################################################################################
+# The +Freeplay::Board+ class represents the game board.  Using this
+# class you can discover which stone is covering any space on the
+# board.
+#
+# White stones are represented by the symbol +:white+, black stones
+# are represented by the symbol +:black+, and spaces that are not
+# occupied by any stone are represented by the symbol +:empty+.
+#
+# The game board uses a Cartesian coordinate system, therefore each
+# space on the board can be accessed using x and y coordinates.  The
+# bottom left corner of the board has an x value of 0, and a y value
+# of zero, which is represented as (x,y) or in this case (0,0).
+#
+# If the board size is 10, then the upper right corner of the game
+# board would be (9,9).  Attempting to move off the board is
+# considered an error.
 class Freeplay::Board
 
   ##############################################################################
-  class OutOfBoundsError  < Freeplay::Error; end
-  class InvalidStoneError < Freeplay::Error; end
-  class InvalidMoveError  < Freeplay::Error; end
+  class OutOfBoundsError  < Freeplay::Error; end # :nodoc:
+  class InvalidStoneError < Freeplay::Error; end # :nodoc:
+  class InvalidMoveError  < Freeplay::Error; end # :nodoc:
 
   ##############################################################################
   # The width and height of the game board.  Since the board must be a
   # square the width and height will always be the same.
   attr_reader(:size)
+
+  ##############################################################################
+  # The last move made by the opponent, or nil if the opponent hasn't
+  # moved yet.  This is an array of two elements: [x, y].
+  attr_reader(:last_opponent_move)
 
   ##############################################################################
   # Don't create a game board yourself.
@@ -54,6 +76,24 @@ class Freeplay::Board
     x, y = transform(x, y)
     @last_opponent_move = [x, y]
     @grid[x][y] = @opponent
+  end
+
+  ##############################################################################
+  # Returns an array of valid coordinates that are adjacent to the
+  # give coordinates.
+  def adjacent (x, y)
+    transforms = [
+      [x    , y + 1], # North
+      [x + 1, y + 1], # Northeast
+      [x + 1, y    ], # East
+      [x + 1, y - 1], # Southeast
+      [x    , y - 1], # South
+      [x - 1, y - 1], # Southwest
+      [x - 1, y    ], # West
+      [x - 1, y + 1], # Northwest
+    ]
+
+    transforms.select {|t| t.all? {|p| p >= 0 && p < @size}}
   end
 
   ##############################################################################
@@ -125,22 +165,5 @@ class Freeplay::Board
   # Transforms grid coordinates to array coordinates.
   def transform (x, y)
     [@size - 1 - y, x]
-  end
-
-  ##############################################################################
-  # Returns all the adjacent stones.
-  def adjacent (x, y)
-    transforms = [
-      [x    , y + 1], # North
-      [x + 1, y + 1], # Northeast
-      [x + 1, y    ], # East
-      [x + 1, y - 1], # Southeast
-      [x    , y - 1], # South
-      [x - 1, y - 1], # Southwest
-      [x - 1, y    ], # West
-      [x - 1, y + 1], # Northwest
-    ]
-
-    transforms.select {|t| t.all? {|p| p >= 0 && p < @size}}
   end
 end
