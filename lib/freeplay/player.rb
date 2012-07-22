@@ -20,6 +20,10 @@ class Freeplay::Player
   attr_accessor(:board)
 
   ##############################################################################
+  # You can use the logger object to write entries to the log file.
+  attr_accessor(:logger)
+
+  ##############################################################################
   # The +move+ method is called on your player object when it's your
   # turn to move.  The +move+ method is required to return an array of
   # two elements containing the x and y coordinates you with to move

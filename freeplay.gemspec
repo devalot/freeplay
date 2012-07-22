@@ -14,4 +14,6 @@ Gem::Specification.new do |gem|
   gem.name          = "freeplay"
   gem.require_paths = ["lib"]
   gem.version       = Freeplay::VERSION
+
+  gem.add_dependency('eventmachine', '~> 0.12.10')
 end

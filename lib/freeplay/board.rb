@@ -62,19 +62,19 @@ class Freeplay::Board
 
   ##############################################################################
   # This method is for internal use only.
-  def []= (x, y, val) # :nodoc:
+  def player_move (x, y) # :nodoc:
     x, y = transform(x, y)
     bounds_check(x, y)
     move_check(x, y)
-    stone_check(val)
-    @grid[x][y] = val
+    @grid[x][y] = @player
   end
 
   ##############################################################################
   # This method is for internal use only.
   def opponent_move (x, y) # :nodoc:
-    x, y = transform(x, y)
     @last_opponent_move = [x, y]
+
+    x, y = transform(x, y)
     @grid[x][y] = @opponent
   end
 
@@ -128,7 +128,8 @@ class Freeplay::Board
   # Ensure the move is valid.
   def move_check (x, y)
     if !@last_opponent_move.nil?
-      allowed = adjacent(*@last_opponent_move).select do |(x,y)|
+      last = transform(*@last_opponent_move)
+      allowed = adjacent(*last).select do |(x,y)|
         @grid[x][y] == :empty
       end
 
@@ -164,6 +165,12 @@ class Freeplay::Board
   ##############################################################################
   # Transforms grid coordinates to array coordinates.
   def transform (x, y)
+    if !x.is_a?(Fixnum) or !y.is_a?(Fixnum)
+      message  = "(#{x.inspect},#{y.inspect}) doesn't appear to "
+      message += "be valid coordinates, both should be integers"
+      raise(OutOfBoundsError, message)
+    end
+
     [@size - 1 - y, x]
   end
 end

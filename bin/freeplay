@@ -1,0 +1,74 @@
+#!/usr/bin/env ruby
+
+################################################################################
+require('freeplay')
+require('ostruct')
+require('optparse')
+require('logger')
+
+################################################################################
+class Configuration
+
+  ##############################################################################
+  DEFAULT_OPTIONS = {
+    :host => 'localhost',
+    :port => 5678,
+  }
+
+  ##############################################################################
+  attr_reader(:options)
+
+  ##############################################################################
+  attr_reader(:player)
+
+  ##############################################################################
+  attr_reader(:logger)
+
+  ##############################################################################
+  def initialize
+    @options = OpenStruct.new(DEFAULT_OPTIONS)
+
+    OptionParser.new do |p|
+      p.banner = "Usage: freeplay [options] ruby-file"
+
+      p.on('-h', '--help', 'This message') do
+        $stdout.puts(p)
+        exit
+      end
+    end.parse!(ARGV)
+
+    if ARGV.size != 1 or !File.exist?(ARGV.first)
+      raise("expected a single file name, see --help")
+    end
+
+    require(File.expand_path(ARGV.first))
+
+    if Freeplay::Player.players.size != 1
+      error  = "expected to find a class that inherits from Freeplay::Player "
+      error += "after loading #{ARGV.first}, please check your code"
+      raise(error)
+    end
+
+    @player = Freeplay::Player.players.first
+    @logger = Logger.new($stdout)
+  end
+end
+
+################################################################################
+begin
+  config  = Configuration.new
+  options = config.options
+
+  EventMachine.run do
+    Signal.trap("INT")  { EventMachine.stop }
+    Signal.trap("TERM") { EventMachine.stop }
+
+    Freeplay::Client.player_class = config.player
+    Freeplay::Client.logger = config.logger
+    Freeplay::Client.username = ENV['USER']
+    EventMachine.connect(options.host, options.port, Freeplay::Client)
+  end
+rescue RuntimeError => e
+  $stderr.puts(File.basename($0) + ": ERROR: #{e}")
+  exit(1)
+end
