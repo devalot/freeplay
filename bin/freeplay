@@ -13,6 +13,9 @@ class Configuration
   DEFAULT_OPTIONS = {
     :host => 'localhost',
     :port => 5678,
+    :log  => 'freeplay.log',
+    :user => ENV['USER'],
+    :gui  => true,
   }
 
   ##############################################################################
@@ -50,7 +53,7 @@ class Configuration
     end
 
     @player = Freeplay::Player.players.first
-    @logger = Logger.new($stdout)
+    @logger = Logger.new(options.log || $stdout)
   end
 end
 
@@ -63,9 +66,7 @@ begin
     Signal.trap("INT")  { EventMachine.stop }
     Signal.trap("TERM") { EventMachine.stop }
 
-    Freeplay::Client.player_class = config.player
-    Freeplay::Client.logger = config.logger
-    Freeplay::Client.username = ENV['USER']
+    Freeplay::Client.config = config
     EventMachine.connect(options.host, options.port, Freeplay::Client)
   end
 rescue RuntimeError => e

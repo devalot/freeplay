@@ -33,6 +33,16 @@ class Freeplay::Board
   attr_reader(:last_opponent_move)
 
   ##############################################################################
+  # Returns the stone color of the primary player.  The stone color
+  # will be a symbol, either +:white+ or +:black+.
+  attr_reader(:player)
+
+  ##############################################################################
+  # Returns the stone color for the primary player's opponent. The
+  # stone color will be a symbol, either +:white+ or +:black+.
+  attr_reader(:opponent)
+
+  ##############################################################################
   # Don't create a game board yourself.
   def initialize (player, size=10) # :nodoc:
     @player, @size = player, size

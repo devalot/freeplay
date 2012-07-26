@@ -16,4 +16,5 @@ Gem::Specification.new do |gem|
   gem.version       = Freeplay::VERSION
 
   gem.add_dependency('eventmachine', '~> 0.12.10')
+  gem.add_dependency('gtk2',         '~> 1.1.4')
 end
