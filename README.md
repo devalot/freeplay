@@ -94,5 +94,20 @@ Use the `--help` option with the `freeplay` command for more details.
     sudo gem sources --add http://gems.devalot.com
     sudo gem install freeplay
 
+# Suggestions
+
+  1. Read the `ri` documentation for Freeplay:
+
+        ri Freeplay
+
+  2. Write as many instance methods as necessary to make your player
+     code clean and readable.
+
+  3. Read the source code for the `Freeplay::Board` class and see how
+     it works.
+
+  4. Don't forget to read the source code for the example player class
+     in `example/dummy.rb`.
+
 [freedom]: http://en.wikipedia.org/wiki/Freedom_(board_game)
 [cartesian]: http://en.wikipedia.org/wiki/Cartesian_coordinate_system
