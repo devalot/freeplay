@@ -1,5 +1,5 @@
 ################################################################################
-# The +Freeplay::Board+ class represents the game board.  Using this
+# The Freeplay::Board class represents the game board.  Using this
 # class you can discover which stone is covering any space on the
 # board.
 #

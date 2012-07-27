@@ -1,4 +1,4 @@
-class Freeplay::Client < EM::Connection
+class Freeplay::Client < EM::Connection # :nodoc:
 
   ##############################################################################
   include(EM::Protocols::LineText2)

@@ -59,6 +59,11 @@ class Configuration
       p.on('--stdout', 'Use STDOUT instead of a log file') do
         options.log = nil
       end
+
+      p.on('--version', 'Prints the version number and exits') do
+        $stdout.puts("Freeplay #{Freeplay::VERSION}")
+        exit
+      end
     end.parse!(ARGV)
 
     if ARGV.size != 1 or !File.exist?(ARGV.first)
@@ -81,6 +86,7 @@ class Configuration
 
     @player = Freeplay::Player.players.first
     @logger = Logger.new(options.log || $stdout)
+    @logger.info("Freeplay #{Freeplay::VERSION} starting...")
   end
 end
 
