@@ -1,7 +1,6 @@
 ################################################################################
 require('digest')
 require('eventmachine')
-require('gtk2')
 
 ################################################################################
 # Freeplay is a simple board game played using a server and an
