@@ -1,9 +1,17 @@
 ################################################################################
-require('stringio')
+require('digest')
 require('eventmachine')
 require('gtk2')
 
 ################################################################################
+# Freeplay is a simple board game played using a server and an
+# opponent.  In order to play Freeplay you must write a player class
+# and give it to the +freeplay+ command line application.
+#
+# The classes that you might want to review are:
+#
+#  - Freeplay::Player
+#  - Freeplay::Board
 module Freeplay
 
   ##############################################################################

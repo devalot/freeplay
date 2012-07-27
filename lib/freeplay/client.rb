@@ -16,7 +16,7 @@ class Freeplay::Client < EM::Connection
   }
 
   ##############################################################################
-  attr_accessor(:player_class, :logger, :username, :gui)
+  attr_accessor(:player_class, :logger, :username, :gui, :ssh_key)
 
   ##############################################################################
   def self.config= (config)
@@ -30,9 +30,10 @@ class Freeplay::Client < EM::Connection
     self.logger       = @@config.logger
     self.username     = @@config.options.user
     self.gui          = @@config.options.gui
+    self.ssh_key      = @@config.options.ssh_key
 
     logger.info("connected to server, initiating authentication")
-    send_data("authenticate: #{username}\n")
+    send_line("authenticate: #{username}")
   end
 
   ##############################################################################
@@ -60,7 +61,9 @@ class Freeplay::Client < EM::Connection
   ##############################################################################
   # Suppose to send back a nonce-reply.
   def authenticate_with_nonce (nonce)
-    send_data("nonce-reply: FOOBAR\n")
+    digest = Digest::SHA256.file(ssh_key).hexdigest
+    reply  = Digest::SHA256.hexdigest(nonce + digest)
+    send_line("nonce-reply: #{reply}")
   end
 
   ##############################################################################
@@ -129,7 +132,7 @@ class Freeplay::Client < EM::Connection
         @board.player_move(player_move.first, player_move.last)
         gui.move(@board.player, player_move.first, player_move.last) if gui
         logger.info("your move is (#{player_move.first},#{player_move.last})")
-        send_data("move: #{player_move.first},#{player_move.last}\n")
+        send_line("move: #{player_move.first},#{player_move.last}")
       else
         error("#{player_class}#move did not return a 2 element array")
       end
@@ -165,6 +168,12 @@ class Freeplay::Client < EM::Connection
   # Parse the live stone coordinates from the server.
   def parse_live (info)
     info.split(/\s*;\s*/).map {|s| s.split(/\s+/).map {|n| n.to_i}}
+  end
+
+  ##############################################################################
+  # Send the given message to the server on a single line.
+  def send_line (message)
+    send_data(message.gsub(/\n+/, ' ') + "\n")
   end
 
   ##############################################################################

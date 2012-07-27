@@ -11,11 +11,12 @@ class Configuration
 
   ##############################################################################
   DEFAULT_OPTIONS = {
-    :host => 'localhost',
-    :port => 5678,
-    :log  => 'freeplay.log',
-    :user => ENV['USER'],
-    :gui  => true,
+    :host    => 'localhost',
+    :port    => 5678,
+    :log     => 'freeplay.log',
+    :user    => ENV['USER'],
+    :gui     => true,
+    :ssh_key => '~/.ssh/id_rsa.pub',
   }
 
   ##############################################################################
@@ -34,9 +35,29 @@ class Configuration
     OptionParser.new do |p|
       p.banner = "Usage: freeplay [options] ruby-file"
 
+      p.on('-G', '--no-gui', 'Disable the GUI game board') do
+        options.gui = false
+      end
+
       p.on('-h', '--help', 'This message') do
         $stdout.puts(p)
         exit
+      end
+
+      p.on('-H', '--host=NAME', 'Connect to server on host NAME') do |h|
+        options.host = h
+      end
+
+      p.on('-P', '--port=NUM', 'The port the server listens on') do |p|
+        options.port = p.to_i
+      end
+
+      p.on('-s', '--ssh-key=FILE', 'Use the given SSH public key') do |s|
+        options.ssh_key = s
+      end
+
+      p.on('--stdout', 'Use STDOUT instead of a log file') do
+        options.log = nil
       end
     end.parse!(ARGV)
 
@@ -44,11 +65,17 @@ class Configuration
       raise("expected a single file name, see --help")
     end
 
+    options.ssh_key = File.expand_path(options.ssh_key)
+
+    if !File.exist?(options.ssh_key)
+      raise("SSH key doesn't exist: #{options.ssh_key}")
+    end
+
     require(File.expand_path(ARGV.first))
 
     if Freeplay::Player.players.size != 1
       error  = "expected to find a class that inherits from Freeplay::Player "
-      error += "after loading #{ARGV.first}, please check your code"
+      error += "after loading #{ARGV.first}, please check your code!"
       raise(error)
     end
 

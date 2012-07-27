@@ -1,4 +1,4 @@
-class Freeplay::GUI
+class Freeplay::GUI #:nodoc:
 
   ##############################################################################
   WINDOW_TITLE = 'Freeplay Game'
@@ -12,7 +12,7 @@ class Freeplay::GUI
   ##############################################################################
   COLORS_LIVE = {
     :white => Gdk::Color.parse("#f0e68c"),
-    :black => Gdk::Color.parse("#8b5a2b"), # ("#532f00"),
+    :black => Gdk::Color.parse("#8b5a2b"),
   }
 
   ##############################################################################
