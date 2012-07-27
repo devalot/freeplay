@@ -15,9 +15,9 @@ a set of black stones.  The player with the white stones moves first,
 placing a white stone on any space on the game board.  The players
 then alternate, placing their stones on open spaces.
 
-After the first move, the rules for placing a stone are as follows:
+After the first move the rules for placing a stone are as follows:
 
-  1. When placing your stone on the board, it must be adjacent to your
+  1. When placing your stone on the board it must be adjacent to your
      opponent's previously placed stone.
 
   2. If there are no vacant spaces adjacent to your opponent's
