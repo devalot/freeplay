@@ -91,6 +91,7 @@ Use the `--help` option with the `freeplay` command for more details.
 
 # Installing the Freeplay Gem
 
+    sudo apt-get install libgtk2.0-dev
     sudo gem sources --add http://gems.devalot.com
     sudo gem install freeplay
 
