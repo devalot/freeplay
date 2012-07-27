@@ -110,5 +110,11 @@ Use the `--help` option with the `freeplay` command for more details.
   4. Don't forget to read the source code for the example player class
      in `example/dummy.rb`.
 
+  5. During game play all of the player actions are recorded into a
+     log file named `freeplay.log`.  You will probably want to review
+     the log file in order to debug your player's moves.  You can also
+     write into this log file using the `logger` method in your player
+     class.  See the example player for additional information.
+
 [freedom]: http://en.wikipedia.org/wiki/Freedom_(board_game)
 [cartesian]: http://en.wikipedia.org/wiki/Cartesian_coordinate_system
