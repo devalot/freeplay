@@ -5,8 +5,14 @@ class Freeplay::GUI
 
   ##############################################################################
   COLORS_NORMAL = {
-    :black => Gdk::Color.parse("#000000"),
     :white => Gdk::Color.parse("#ffffff"),
+    :black => Gdk::Color.parse("#000000"),
+  }
+
+  ##############################################################################
+  COLORS_LIVE = {
+    :white => Gdk::Color.parse("#f0e68c"),
+    :black => Gdk::Color.parse("#8b5a2b"), # ("#532f00"),
   }
 
   ##############################################################################
@@ -26,14 +32,17 @@ class Freeplay::GUI
   ##############################################################################
   def move (player, x, y)
     opponent = player == :black ? :white : :black
-    x, y = @board.send(:transform, x, y)
+    x, y = transform(x, y)
+    bg, fg = COLORS_NORMAL[player], COLORS_NORMAL[opponent]
 
-    cell = @grid[x][y]
-    cell[:label].text = @counts[player].to_s
-    cell[:box].modify_bg(Gtk::STATE_NORMAL,   COLORS_NORMAL[player])
-    cell[:label].modify_fg(Gtk::STATE_NORMAL, COLORS_NORMAL[opponent])
-
+    update_color(x, y, bg, fg, @counts[player])
     @counts[player] += 1
+  end
+
+  ##############################################################################
+  def live (white_live, black_live)
+    update_live_stones(:white, white_live)
+    update_live_stones(:black, black_live)
   end
 
   ##############################################################################
@@ -71,5 +80,29 @@ class Freeplay::GUI
     end
 
     table
+  end
+
+  ##############################################################################
+  def update_live_stones (color, coordinates)
+    opposite = color == :white ? :black : :white
+
+    coordinates.each do |(x, y)|
+      tx, ty = transform(x, y)
+      update_color(tx, ty, COLORS_LIVE[color], COLORS_NORMAL[opposite])
+    end
+  end
+
+  ##############################################################################
+  def update_color (x, y, bg, fg, count=nil)
+    cell = @grid[x][y]
+    cell[:box].modify_bg(Gtk::STATE_NORMAL,   bg)
+    cell[:label].modify_fg(Gtk::STATE_NORMAL, fg)
+    cell[:label].text = count.to_s if count
+  end
+
+  ##############################################################################
+  # Translates game board coordinates to GTK table coordinates.
+  def transform (x, y)
+    [x, @board.size - 1 - y]
   end
 end

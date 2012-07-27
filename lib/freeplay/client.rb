@@ -142,12 +142,16 @@ class Freeplay::Client < EM::Connection
 
   ##############################################################################
   # Game over.
-  def game (status)
-    logger.info(status)
+  def game (info)
+    logger.info("game over")
 
-    s = StringIO.new
-    @player.board.dump(s)
-    logger.debug("Final board state: \n#{s.string}")
+    if (data = info.split(/\s*,\s*/)).size == 3
+      winner, white_live, black_live = data
+      logger.info("#{winner} won")
+      gui.live(parse_live(white_live), parse_live(black_live)) if gui
+    else
+      error("invalid game over command from server")
+    end
   end
 
   ##############################################################################
@@ -155,6 +159,12 @@ class Freeplay::Client < EM::Connection
   def quit (message)
     logger.info("quitting: #{message}")
     EventMachine.stop
+  end
+
+  ##############################################################################
+  # Parse the live stone coordinates from the server.
+  def parse_live (info)
+    info.split(/\s*;\s*/).map {|s| s.split(/\s+/).map {|n| n.to_i}}
   end
 
   ##############################################################################
