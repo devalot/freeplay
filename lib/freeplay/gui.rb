@@ -1,4 +1,5 @@
 ################################################################################
+# http://ruby-gnome2.sourceforge.jp/hiki.cgi?Ruby%2FGTK
 require('gtk2')
 
 ################################################################################
@@ -20,12 +21,24 @@ class Freeplay::GUI #:nodoc:
   }
 
   ##############################################################################
-  def initialize (board, &quit)
-    @board = board
-    @counts = {white: 1, black: 1}
-    @grid = Array.new(@board.size) {Array.new(@board.size, nil)}
+  def initialize (&quit)
+    @board = Freeplay::Board.new(:white)
+
+    @counts  = {white: 1,              black: 1}
+    @score   = {white: 0,              black: 0}
+    @players = {white: "White Stones", black: "Black Stones"}
+
     @window = create_window(&quit)
     @window.show_all
+  end
+
+  ##############################################################################
+  def board= (board)
+    @board = board
+    @container.remove(@table)
+    @container.pack_start(@table = create_table, true)
+    @container.reorder_child(@table, 1)
+    @container.show_all
   end
 
   ##############################################################################
@@ -41,6 +54,27 @@ class Freeplay::GUI #:nodoc:
 
     update_color(x, y, bg, fg, @counts[player])
     @counts[player] += 1
+  end
+
+  ##############################################################################
+  def players (white, black)
+    @players = {white: white, black: black}
+    score(*@score.values)
+  end
+
+  ##############################################################################
+  def message (msg)
+    @messages.text = msg
+  end
+
+  ##############################################################################
+  def score (white, black)
+    @score = {white: white, black: black}
+
+    @score.each do |color, score|
+      label = @score_labels[color]
+      label.text = @players[color] + ": #{score}"
+    end
   end
 
   ##############################################################################
@@ -62,8 +96,36 @@ class Freeplay::GUI #:nodoc:
     window.signal_connect("delete_event", &quit)
     window.signal_connect("destroy", &quit)
 
-    window.add(create_table)
+    @messages = Gtk::Label.new("Waiting for game to start...")
+    @messages.justify = Gtk::JUSTIFY_LEFT
+    msg_box = Gtk::Fixed.new
+    msg_box.put(@messages, 0, 2)
+
+    @container = Gtk::VBox.new(false, 4)
+    @container.pack_start(create_score_labels, false)
+    @container.pack_start(@table = create_table, true)
+    @container.pack_start(msg_box, false)
+
+    window.add(@container)
     window
+  end
+
+  ##############################################################################
+  def create_score_labels
+    box = Gtk::HBox.new(false, 4)
+
+    @score_labels = {
+      white: Gtk::Label.new(""),
+      black: Gtk::Label.new(""),
+    }
+
+    @score_labels.values.each do |label|
+      label.justify = Gtk::JUSTIFY_CENTER
+      box.add(label)
+    end
+
+    score(0, 0)
+    box
   end
 
   ##############################################################################
@@ -72,6 +134,8 @@ class Freeplay::GUI #:nodoc:
   # were made, and the event boxes will show the color of the stone in
   # that box.
   def create_table
+    @grid = Array.new(@board.size) {Array.new(@board.size, nil)}
+
     table = Gtk::Table.new(@board.size, @board.size, true)
     t_options = Gtk::EXPAND | Gtk::FILL
 

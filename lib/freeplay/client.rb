@@ -11,6 +11,7 @@ class Freeplay::Client < EM::Connection # :nodoc:
     'board'          => :create_board_and_player,
     'score'          => :score,
     'move'           => :move,
+    'message'        => :show_user_message,
     'game'           => :game,
     'quit'           => :quit,
   }
@@ -31,6 +32,11 @@ class Freeplay::Client < EM::Connection # :nodoc:
     self.username     = @@config.options.user
     self.gui          = @@config.options.gui
     self.ssh_key      = @@config.options.ssh_key
+
+    if gui
+      self.gui = Freeplay::GUI.new {EventMachine.stop}
+      EventMachine.add_periodic_timer(0.01) {gui.update}
+    end
 
     logger.info("connected to server, initiating authentication")
     send_line("authenticate: #{username}")
@@ -75,6 +81,15 @@ class Freeplay::Client < EM::Connection # :nodoc:
   ##############################################################################
   # We were assigned an opponent.
   def announce_opponent (opponent)
+    players = opponent.split(/\s*,\s*/)
+
+    if players.size == 1
+      @white_player_name = "You"
+      @black_player_name = players.first
+    else
+      @white_player_name, @black_player_name = players
+    end
+
     logger.info("your opponent is #{opponent}")
   end
 
@@ -89,8 +104,9 @@ class Freeplay::Client < EM::Connection # :nodoc:
       @player.logger = logger
 
       if gui
-        self.gui = Freeplay::GUI.new(@board) {EventMachine.stop}
-        EventMachine.add_periodic_timer(0.01) {gui.update}
+        gui.board = @board
+        gui.players(@white_player_name, @black_player_name)
+        gui.message("Game in progress...")
       end
     else
       error("server send over invalid game board parameters")
@@ -104,6 +120,7 @@ class Freeplay::Client < EM::Connection # :nodoc:
   def score (details)
     if m = details.match(/^(\d+),(\d+)$/)
       white, black = m[1].to_i, m[2].to_i
+      gui.score(white, black) if gui
       logger.info("score: white=#{white}, black=#{black}")
     else
       error("bad score from the server")
@@ -144,6 +161,12 @@ class Freeplay::Client < EM::Connection # :nodoc:
   end
 
   ##############################################################################
+  def show_user_message (msg)
+    gui.message(msg) if gui
+    logger.info("message: #{msg}")
+  end
+
+  ##############################################################################
   # Game over.
   def game (info)
     logger.info("game over")
@@ -152,6 +175,7 @@ class Freeplay::Client < EM::Connection # :nodoc:
       winner, white_live, black_live = data
       logger.info("#{winner} won")
       gui.live(parse_live(white_live), parse_live(black_live)) if gui
+      gui.message("Game over.")
     else
       error("invalid game over command from server")
     end
