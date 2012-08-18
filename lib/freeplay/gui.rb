@@ -22,12 +22,7 @@ class Freeplay::GUI #:nodoc:
 
   ##############################################################################
   def initialize (&quit)
-    @board = Freeplay::Board.new(:white)
-
-    @counts  = {white: 1,              black: 1}
-    @score   = {white: 0,              black: 0}
-    @players = {white: "White Stones", black: "Black Stones"}
-
+    self.board = Freeplay::Board.new(:white)
     @window = create_window(&quit)
     @window.show_all
   end
@@ -35,10 +30,14 @@ class Freeplay::GUI #:nodoc:
   ##############################################################################
   def board= (board)
     @board = board
-    @container.remove(@table)
-    @container.pack_start(@table = create_table, true)
-    @container.reorder_child(@table, 1)
-    @container.show_all
+    reset
+
+    if @table
+      @container.remove(@table)
+      @container.pack_start(@table = create_table, true)
+      @container.reorder_child(@table, 1)
+      @container.show_all
+    end
   end
 
   ##############################################################################
@@ -85,6 +84,13 @@ class Freeplay::GUI #:nodoc:
 
   ##############################################################################
   private
+
+  ##############################################################################
+  def reset
+    @counts  = {white: 1,              black: 1}
+    @score   = {white: 0,              black: 0}
+    @players = {white: "White Stones", black: "Black Stones"}
+  end
 
   ##############################################################################
   def create_window (&quit)

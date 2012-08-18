@@ -171,7 +171,7 @@ class Freeplay::Client < EM::Connection # :nodoc:
   def game (info)
     logger.info("game over")
 
-    if (data = info.split(/\s*,\s*/)).size == 3
+    if (data = info.split(/\s*,\s*/, 3)).size == 3
       winner, white_live, black_live = data
       logger.info("#{winner} won")
       gui.live(parse_live(white_live), parse_live(black_live)) if gui
